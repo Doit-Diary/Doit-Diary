@@ -34,6 +34,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  sqflite: ^2.0.0+3 # SQLite 관련 패키지
+  path: ^1.8.0 # 내부 저장소 관련 패키지
 
 dev_dependencies:
   flutter_test:
