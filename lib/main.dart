@@ -49,15 +49,20 @@
 //   State<MyHomePage> createState() => _MyHomePageState();
 // }
 //
+import 'dart:html';
+
+import 'package:doitdairy_sue/specific_dairy.dart';
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'signPage.dart';
-
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -65,9 +70,93 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      initialRoute: '/',
+      initialRoute: "/",
       routes: {
-        '/': (context) => LoginPage(),
+        "/": (context) => HomeScreen(),
+        "/SpecificDairy": (context) => SpecificDairy(),
         '/sign' : (context) => SignPage(),
-      },);}
+      },
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget{
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>{
+  getNotes() async{
+    //final notes = await DatabaseProvider.db.getNotes();// db 폴더 밑에 dbprovider.dart 넣어서 db provider 함수 넣기
+    //return notes
+  }
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("나의 일기"),
+        actions: [
+          //icon: Icon(Icons,delete),
+          //onPressed: (){
+          //DatabaseProvider.db.deleteNote(note.id);
+          //Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
+          //}
+        ],
+      ),
+      // body: FutureBuilder(
+      //   future: getNotes(),
+      //   builder: (context, noteData){
+      //     switch(noteData.connectionState){
+      //       case ConnectionState.waiting:
+      //         {
+      //           return Center(child: CircularProgressIndicator());// 로딩중 표시
+      //         }
+      //       case ConnectionState.done:
+      //         {
+      //           if(noteData.data == Null){//Null값 체크
+      //             return Center(
+      //               child: Text("일기를 작성하지 않았습니다"),
+      //             );
+      //           }
+      //           else{
+      //             return Padding(
+      //                 padding: const EdgeInsets.all(8.0),//여백주기
+      //               child: ListView.builder(
+      //                 //itemCount : noteData.data.length,
+      //                 itemBuilder: (context, index){//데이터 받아오기
+      //                   //String title = noteData.data[index]['title'];
+      //                  // String content = noteData.data[index]['content'];
+      //                   //String date = noteData.data[index]['date'];
+      //                   //String userkey = noteData.data[index]['userkey'];
+      //                   return Card(child: ListTile(
+      //                     //onTap: (){
+      //                       //NoteModel note = noteData.data[index] as NoteModel;
+      //                       //Navigator.pushNamed(context,"/SpecificDariy", arguments: NoteModel(
+      //                         //title = title,
+      //                         //content = content,
+      //                         //date = DateTime.parse(date),
+      //                         //userkey = userkey,
+      //                       //)
+      //                       //);
+      //                     //},
+      //                     title: Text('title'),
+      //                     subtitle: Text('content'),
+      //                   ),
+      //                   );
+      //                 },
+      //               ),
+      //             );
+      //           }}
+      //         }
+      //
+      //   },
+      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          Navigator.pushNamed(context, "/");//돌아갈때는 navigator.pop 쓰기
+        },
+        child: Icon(Icons.note_add),
+      ),
+    );
+  }
 }
