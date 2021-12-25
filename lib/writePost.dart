@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:intl/intl.dart';
+import 'data/diary.dart';
 
 class WritePost extends StatelessWidget {
+  final Future<Database> db;
+  WritePost(this.db);
+
   @override
   Widget build(BuildContext context) {
     final titleController = TextEditingController();
@@ -102,25 +108,60 @@ class WritePost extends StatelessWidget {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                                content: Text("이대로 저장하시겠습니까?"),
+                            if (titleController.text.trim() == '') {
+                              return AlertDialog(
+                                content: Text("제목을 입력해주세요."),
                                 actions: <Widget>[
                                   TextButton(
-                                      child: new Text("계속 작성",
-                                          style: TextStyle(color: Colors.red)),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      }
-                                  ),
-                                  TextButton(
-                                      child: new Text("저장",
-                                          style: TextStyle(color: Colors.blue)),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      }
+                                    child: new Text("확인"),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    }
                                   )
                                 ]
-                            );
+                              );
+                            } else if (contentController.text.trim() == '') {
+                              return AlertDialog(
+                                  content: Text("내용을 입력해주세요."),
+                                  actions: <Widget>[
+                                    TextButton(
+                                        child: new Text("확인"),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        }
+                                    )
+                                  ]
+                              );
+                            } else {
+                              return AlertDialog(
+                                  content: Text("이대로 저장하시겠습니까?"),
+                                  actions: <Widget>[
+                                    TextButton(
+                                        child: new Text("계속 작성",
+                                            style: TextStyle(color: Colors.red)),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        }
+                                    ),
+                                    TextButton(
+                                        child: new Text("저장",
+                                            style: TextStyle(color: Colors.blue)),
+                                        onPressed: () async {
+                                          Diary diary = Diary(
+                                            title: titleController.value.text,
+                                            content: contentController.value.text,
+                                            date: DateFormat('yyyy-MM-dd\nHH:mm').format(DateTime.now().add(Duration(hours: 9))),
+                                            user_key: 1,  // 수정 필요
+                                          );
+                                          _insertDiary(diary);
+                                          Navigator.pop(context);
+                                          _selectAllDiary();
+                                          // Navigator.of(context).pop(diary);
+                                        }
+                                    )
+                                  ]
+                              );
+                            }
                           },
                         );
                       },
@@ -139,5 +180,17 @@ class WritePost extends StatelessWidget {
         )
       )
     );
+  }
+
+  void _insertDiary(Diary diary) async {
+    final Database database = await db;
+    await database.insert('Diary', diary.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  void _selectAllDiary() async {
+    final Database database = await db;
+    List<Map> result = await database.query('Diary');
+    result.forEach((row) => print(row));
   }
 }

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'specific_dairy.dart';
-import 'login.dart';
+import 'specificDiary.dart';
 import 'signPage.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future<Database> database = initDatabase();
+    print("OK");
 
     return MaterialApp(
       title: 'do it 다이어리',
@@ -25,30 +26,33 @@ class MyApp extends StatelessWidget {
       initialRoute: "/",
       routes: {
         "/": (context) => HomeScreen(database),
-        "/SpecificDairy": (context) => SpecificDairy(),
+        "/SpecificDiary": (context) => SpecificDiary(),
         '/sign' : (context) => SignPage(),
       },
     );
   }
 
   Future<Database> initDatabase() async {
-    print("OK");
-    return openDatabase(
-      join(await getDatabasesPath(), 'do_it_diary.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-              "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL);"
+    String path = join(await getDatabasesPath(), 'do_it_diary.db');
+    await deleteDatabase(path);
+    return await openDatabase(path, version: 2,
+        onCreate: (db, version) async {
+          await db.execute(
+              "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+                  "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL)"
+          );
+          await db.execute(
               "CREATE TABLE Diary(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-              "title TEXT NOT NULL, content TEXT NOT NUL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
-              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key));"
+                  "title TEXT NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
+                  "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
+          );
+          await db.execute(
               "CREATE TABLE Voca(key INTEGER, "
-              "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL"
-              "PRIMARY KEY(key, user_key)),"
-              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
-        );
-      },
-      version: 1
+                  "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL, "
+                  "PRIMARY KEY(key, user_key), "
+                  "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
+          );
+        }
     );
   }
 }
@@ -66,15 +70,15 @@ class _HomeScreenState extends State<HomeScreen>{
     //return notes
   }
   @override
-Widget build(BuildContext context){
+  Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
         title: Text("나의 일기"),
-          actions: [
+        actions: [
           //icon: Icon(Icons,delete),
           //onPressed: (){
-            //DatabaseProvider.db.deleteNote(note.id);
-            //Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
+          //DatabaseProvider.db.deleteNote(note.id);
+          //Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
           //}
         ],
       ),
@@ -133,5 +137,5 @@ Widget build(BuildContext context){
         child: Icon(Icons.note_add),
       ),
     );
-}
+  }
 }

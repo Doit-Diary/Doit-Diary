@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class SpecificDairy extends StatelessWidget{
-  const SpecificDairy({Key ?key}) : super(key: key);
+class SpecificDiary extends StatelessWidget{
+  const SpecificDiary({Key ?key}) : super(key: key);
 
   @override
   Widget build(BuildContext context){
