@@ -40,9 +40,12 @@ class MyApp extends StatelessWidget {
           "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
               "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL);"
               "CREATE TABLE Diary(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-              "title TEXT NOT NULL, content TEXT NOT NUL, date TEXT NOT NULL, user_key INTEGER NOT NULL);"
-              "CREATE TABLE Voca(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-              "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL)"
+              "title TEXT NOT NULL, content TEXT NOT NUL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
+              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key));"
+              "CREATE TABLE Voca(key INTEGER, "
+              "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL"
+              "PRIMARY KEY(key, user_key)),"
+              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
         );
       },
       version: 1
