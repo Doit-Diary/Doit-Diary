@@ -1,6 +1,6 @@
 import 'dart:html';
 
-import 'package:doitdairy_sue/specific_dairy.dart';
+import 'specific_dairy.dart';
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'signPage.dart';
