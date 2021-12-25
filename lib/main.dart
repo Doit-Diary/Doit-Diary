@@ -1,7 +1,8 @@
-import 'dart:html';
+import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'specific_dairy.dart';
-import 'package:flutter/material.dart';
 import 'login.dart';
 import 'signPage.dart';
 void main() {
@@ -14,6 +15,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Future<Database> database = initDatabase();
+
     return MaterialApp(
       title: 'do it 다이어리',
       theme: ThemeData(
@@ -21,15 +24,35 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: "/",
       routes: {
-        "/": (context) => HomeScreen(),
+        "/": (context) => HomeScreen(database),
         "/SpecificDairy": (context) => SpecificDairy(),
         '/sign' : (context) => SignPage(),
       },
     );
   }
+
+  Future<Database> initDatabase() async {
+    print("OK");
+    return openDatabase(
+      join(await getDatabasesPath(), 'do_it_diary.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+              "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL);"
+              "CREATE TABLE Diary(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+              "title TEXT NOT NULL, content TEXT NOT NUL, date TEXT NOT NULL, user_key INTEGER NOT NULL);"
+              "CREATE TABLE Voca(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+              "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL)"
+        );
+      },
+      version: 1
+    );
+  }
 }
 
 class HomeScreen extends StatefulWidget{
+  final Future<Database> db;
+  HomeScreen(this.db);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
