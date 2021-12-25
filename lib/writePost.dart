@@ -155,6 +155,8 @@ class WritePost extends StatelessWidget {
                                           );
                                           _insertDiary(diary);
                                           Navigator.pop(context);
+                                          titleController.clear();
+                                          contentController.clear();
                                           _selectAllDiary();
                                           // Navigator.of(context).pop(diary);
                                         }
