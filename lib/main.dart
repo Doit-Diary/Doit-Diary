@@ -1,3 +1,4 @@
+import 'package:doit_diary/wordList.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -27,7 +28,8 @@ class MyApp extends StatelessWidget {
       routes: {
         "/": (context) => HomeScreen(database),
         "/SpecificDiary": (context) => SpecificDiary(),
-        '/sign' : (context) => SignPage(),
+        "/sign" : (context) => SignPage(database),
+        "/wordList": (context) => wordList()
       },
     );
   }
@@ -75,11 +77,11 @@ class _HomeScreenState extends State<HomeScreen>{
       appBar: AppBar(
         title: Text("나의 일기"),
         actions: [
-          //icon: Icon(Icons,delete),
-          //onPressed: (){
-          //DatabaseProvider.db.deleteNote(note.id);
-          //Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
-          //}
+
+          // onPressed: (){
+          // DatabaseProvider.db.deleteNote(note.id);
+          // Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
+          // }
         ],
       ),
       // body: FutureBuilder(
@@ -103,21 +105,21 @@ class _HomeScreenState extends State<HomeScreen>{
       //               child: ListView.builder(
       //                 //itemCount : noteData.data.length,
       //                 itemBuilder: (context, index){//데이터 받아오기
-      //                   //String title = noteData.data[index]['title'];
-      //                  // String content = noteData.data[index]['content'];
-      //                   //String date = noteData.data[index]['date'];
-      //                   //String userkey = noteData.data[index]['userkey'];
+      //                   // String title = noteData.data[index]['title'];
+      //                   // String content = noteData.data[index]['content'];
+      //                   // String date = noteData.data[index]['date'];
+      //                   // String user_key = noteData.data[index]['user_key'];
       //                   return Card(child: ListTile(
-      //                     //onTap: (){
-      //                       //NoteModel note = noteData.data[index] as NoteModel;
-      //                       //Navigator.pushNamed(context,"/SpecificDariy", arguments: NoteModel(
-      //                         //title = title,
-      //                         //content = content,
-      //                         //date = DateTime.parse(date),
-      //                         //userkey = userkey,
-      //                       //)
-      //                       //);
-      //                     //},
+      //                     // onTap: (){
+      //                     //   NoteModel note = noteData.data[index] as NoteModel;
+      //                     //   Navigator.pushNamed(context,"/SpecificDariy", arguments: NoteModel(
+      //                     //     title = title,
+      //                     //     content = content,
+      //                     //     date = DateTime.parse(date),
+      //                     //     user_key = user_key,
+      //                     //   )
+      //                     //   );
+      //                     // },
       //                     title: Text('title'),
       //                     subtitle: Text('content'),
       //                   ),
@@ -132,9 +134,10 @@ class _HomeScreenState extends State<HomeScreen>{
       // ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          Navigator.pushNamed(context, "/");//돌아갈때는 navigator.pop 쓰기
+          Navigator.pushNamed(context, "/wordList");//돌아갈때는 navigator.pop 쓰기
         },
-        child: Icon(Icons.note_add),
+        tooltip: 'WordList',
+        child: Icon(Icons.add),
       ),
     );
   }

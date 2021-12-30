@@ -10,6 +10,23 @@ class SpecificDiary extends StatelessWidget{
   return Scaffold(
     appBar: AppBar(
       title: Text("나의 일기"),//앱바
+      actions: [
+        PopupMenuButton(itemBuilder: (context){
+        return <PopupMenuEntry<String>>[
+          PopupMenuItem(
+              value: 'ReviseButton',
+              child: ListTile(
+                title: Text('수정하기'),
+              )
+          ),
+          PopupMenuItem(
+              value: 'DeleteButton',
+              child: ListTile(
+                title: Text('삭제하기'),
+              )
+          )
+        ];
+      }),],
     ),
     body: Padding(
       padding: const EdgeInsets.all(8.0),//여백
@@ -17,14 +34,14 @@ class SpecificDiary extends StatelessWidget{
         children: [
           Text(
           'title'
-            //note.title,
+            //Diary.title,
             //style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),//폰트 설정
           )
           ,SizedBox(height: 16.0,),
           Text(
             'content'
-            //note.content,
-            ,style: TextStyle(fontSize:18.0 ),
+            //Diary.content,
+            //style: TextStyle(fontSize:18.0 ),
           )
         ],
       )
