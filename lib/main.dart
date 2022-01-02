@@ -1,11 +1,14 @@
+import 'package:doit_diary/data/diary.dart';
 import 'package:doit_diary/wordList.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
+import 'writePost.dart';
 import 'specificDiary.dart';
 import 'signPage.dart';
-
+//import 'Widget/DiaryForm.dart';
+import 'Widget/DiaryCard.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -27,9 +30,10 @@ class MyApp extends StatelessWidget {
       initialRoute: "/",
       routes: {
         "/": (context) => HomeScreen(database),
-        "/SpecificDiary": (context) => SpecificDiary(),
         "/sign" : (context) => SignPage(database),
-        "/wordList": (context) => wordList()
+        "/SpecificDiary": (context) => SpecificDiary(diarykey: 0),
+        "/wordList": (context) => wordList(),
+        "/writePost": (context) => WritePost(database)
       },
     );
   }
@@ -67,12 +71,9 @@ class HomeScreen extends StatefulWidget{
 }
 
 class _HomeScreenState extends State<HomeScreen>{
-  getNotes() async{
-    //final notes = await DatabaseProvider.db.getNotes();// db 폴더 밑에 dbprovider.dart 넣어서 db provider 함수 넣기
-    //return notes
-  }
+  late List<Diary> diaries;
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("나의 일기"),
@@ -82,10 +83,16 @@ class _HomeScreenState extends State<HomeScreen>{
           // DatabaseProvider.db.deleteNote(note.id);
           // Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
           // }
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: ()async{
+              // await Navigator.of(context).push(MaterialPageRoute(builder: (context) => writePost()));
+            },
+          ),
         ],
       ),
       // body: FutureBuilder(
-      //   future: getNotes(),
+      //   future: getDairies()
       //   builder: (context, noteData){
       //     switch(noteData.connectionState){
       //       case ConnectionState.waiting:
@@ -101,25 +108,25 @@ class _HomeScreenState extends State<HomeScreen>{
       //           }
       //           else{
       //             return Padding(
-      //                 padding: const EdgeInsets.all(8.0),//여백주기
+      //               padding: const EdgeInsets.all(8.0),//여백주기
       //               child: ListView.builder(
       //                 //itemCount : noteData.data.length,
       //                 itemBuilder: (context, index){//데이터 받아오기
-      //                   // String title = noteData.data[index]['title'];
-      //                   // String content = noteData.data[index]['content'];
-      //                   // String date = noteData.data[index]['date'];
-      //                   // String user_key = noteData.data[index]['user_key'];
+      //                   String title = noteData.data[index]['title'];
+      //                   String content = noteData.data[index]['content'];
+      //                   String date = noteData.data[index]['date'];
+      //                   String user_key = noteData.data[index]['user_key'];
       //                   return Card(child: ListTile(
-      //                     // onTap: (){
-      //                     //   NoteModel note = noteData.data[index] as NoteModel;
-      //                     //   Navigator.pushNamed(context,"/SpecificDariy", arguments: NoteModel(
-      //                     //     title = title,
-      //                     //     content = content,
-      //                     //     date = DateTime.parse(date),
-      //                     //     user_key = user_key,
-      //                     //   )
-      //                     //   );
-      //                     // },
+      //                     onTap: (){
+      //                       Diary note = noteData.data[index] as Diary;
+      //                       Navigator.pushNamed(context,"/SpecificDiary", arguments: Diary(
+      //                         title = title,
+      //                         content = content,
+      //                         date = date,
+      //                         user_key = user_key,
+      //                       )
+      //                       );
+      //                     },
       //                     title: Text('title'),
       //                     subtitle: Text('content'),
       //                   ),
@@ -128,17 +135,42 @@ class _HomeScreenState extends State<HomeScreen>{
       //               ),
       //             );
       //           }}
-      //         }
+      //     }
       //
       //   },
       // ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          Navigator.pushNamed(context, "/wordList");//돌아갈때는 navigator.pop 쓰기
-        },
-        tooltip: 'WordList',
-        child: Icon(Icons.add),
+          child: Icon(Icons.note_alt_rounded),
+        onPressed: () async {
+        await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => wordList()));
+      }
       ),
+
     );
+    // body: Center(
+    //   child: Column,
+    //);
   }
+  Widget buildDiary() => StaggeredGridView.countBuilder(
+    padding: EdgeInsets.all(8),
+    itemCount: diaries.length,
+    staggeredTileBuilder: (index) => StaggeredTile.fit(2),
+    crossAxisCount: 4,
+    mainAxisSpacing: 4,
+    crossAxisSpacing: 4,
+    itemBuilder: (context, index) {
+      final diary = diaries[index];
+
+      return GestureDetector(
+        onTap: () async {
+          await Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => SpecificDiary(diarykey: diary.key!),
+          ));
+        },
+        child: DiaryCardWidget(diary: diary, index: index));
+    },
+  );
+
 }
+

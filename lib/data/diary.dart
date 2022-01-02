@@ -17,4 +17,5 @@ class Diary {
       'user_key': user_key
     };
   }
+
 }

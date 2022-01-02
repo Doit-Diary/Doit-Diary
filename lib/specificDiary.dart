@@ -1,12 +1,31 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:doit_diary/data/diary.dart';
 
-class SpecificDiary extends StatelessWidget{
-  const SpecificDiary({Key ?key}) : super(key: key);
-
+class SpecificDiary extends StatefulWidget{
+  final int diarykey;
+  const SpecificDiary({
+    Key? key,
+    required this.diarykey,
+}):super(key: key);
   @override
+  _SpecificDiaryState createState() => _SpecificDiaryState();
+}
+
+class _SpecificDiaryState extends State<SpecificDiary>{
+  late Diary diary;
+  bool isLoading = false;
+  @override
+  void initState(){
+    super.initState();
+  }
+  Future refreshDiary()async{
+    setState(() => isLoading = true);
+    //this.diary = await Diary.instance.readDiary(widget.diarykey);
+  }
   Widget build(BuildContext context){
-    //final Notemodel note = ModalRoute().of(context).settings.arguments as NoteModel//모델 받아오기
+
+
   return Scaffold(
     appBar: AppBar(
       title: Text("나의 일기"),//앱바
@@ -28,23 +47,33 @@ class SpecificDiary extends StatelessWidget{
         ];
       }),],
     ),
-    body: Padding(
-      padding: const EdgeInsets.all(8.0),//여백
-      child: Column(
+    body:  isLoading
+        ? Center(child: CircularProgressIndicator())
+        : Padding(
+      padding: EdgeInsets.all(12),
+      child: ListView(
+        padding: EdgeInsets.symmetric(vertical: 8),
         children: [
-          Text(
-          'title'
-            //Diary.title,
-            //style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),//폰트 설정
-          )
-          ,SizedBox(height: 16.0,),
-          Text(
-            'content'
-            //Diary.content,
-            //style: TextStyle(fontSize:18.0 ),
-          )
+          // Text(
+          //   diary.title,
+          //   style: TextStyle(
+          //     color: Colors.white,
+          //     fontSize: 22,
+          //     fontWeight: FontWeight.bold,
+          //   ),
+          // ),
+          SizedBox(height: 8),
+          // Text(
+          //   DateFormat.yMMMd().format(diary.createdTime),
+          //   style: TextStyle(color: Colors.white38),
+          // ),
+          SizedBox(height: 8),
+          // Text(
+          //   diary.content,
+          //   style: TextStyle(color: Colors.white70, fontSize: 18),
+          // )
         ],
-      )
+      ),
     ),
   );
   }
