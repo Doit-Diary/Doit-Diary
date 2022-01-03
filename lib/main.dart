@@ -58,9 +58,8 @@ class MyApp extends StatelessWidget {
               "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
       );
       await db.execute(
-          "CREATE TABLE Voca(key INTEGER, "
+          "CREATE TABLE Voca(key INTEGER PRIMARY KEY AUTOINCREMENT, "
               "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL, isChecked INTEGER NOT NULL, "
-              "PRIMARY KEY(key, user_key), "
               "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
       );
     });

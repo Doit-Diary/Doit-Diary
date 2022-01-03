@@ -126,7 +126,10 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
   void _insertVoca(Voca voca) async{
     final Database database = await widget.db;
     await database.insert('Voca', voca.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace);
+        conflictAlgorithm: ConflictAlgorithm.replace);
+    setState(() {
+      vocaList = getVoca();
+    });
   }
 
   Future<List<Voca>> getVoca() async {
@@ -135,11 +138,11 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
 
     return List.generate(maps.length, (i) {
       return Voca(
-          key: maps[i]['key'],
-          eng: maps[i]['eng'].toString(),
-          kor: maps[i]['kor'].toString(),
-          user_key: maps[i]['user_key'],
-          isChecked: maps[i]['isChecked'],
+        key: maps[i]['key'],
+        eng: maps[i]['eng'].toString(),
+        kor: maps[i]['kor'].toString(),
+        user_key: maps[i]['user_key'],
+        isChecked: maps[i]['isChecked'],
       );
     });
   }
