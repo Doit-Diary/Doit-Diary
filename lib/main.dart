@@ -1,14 +1,16 @@
 import 'package:doit_diary/data/diary.dart';
-import 'package:doit_diary/wordList.dart';
+import 'package:doit_diary/vocaList.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'addVoca.dart';
 import 'writePost.dart';
 import 'specificDiary.dart';
 import 'signPage.dart';
 //import 'Widget/DiaryForm.dart';
 import 'Widget/DiaryCard.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -30,9 +32,10 @@ class MyApp extends StatelessWidget {
       initialRoute: "/",
       routes: {
         "/": (context) => HomeScreen(database),
-        "/sign" : (context) => SignPage(database),
+        "/sign": (context) => SignPage(database),
         "/SpecificDiary": (context) => SpecificDiary(diarykey: 0),
-        "/wordList": (context) => wordList(),
+        "/add": (context) => AddVoca(database),
+        "/vocaList": (context) => VocaList(database),
         "/writePost": (context) => WritePost(database)
       },
     );
@@ -41,36 +44,31 @@ class MyApp extends StatelessWidget {
   Future<Database> initDatabase() async {
     String path = join(await getDatabasesPath(), 'do_it_diary.db');
     await deleteDatabase(path);
-    return await openDatabase(path, version: 2,
-        onCreate: (db, version) async {
-          await db.execute(
-              "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-                  "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL)"
-          );
-          await db.execute(
-              "CREATE TABLE Diary(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-                  "title TEXT NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
-                  "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
-          );
-          await db.execute(
-              "CREATE TABLE Voca(key INTEGER, "
-                  "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL, "
-                  "PRIMARY KEY(key, user_key), "
-                  "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
-          );
-        }
-    );
+    return await openDatabase(path, version: 2, onCreate: (db, version) async {
+      await db.execute(
+          "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+          "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL)");
+      await db.execute(
+          "CREATE TABLE Diary(key INTEGER PRIMARY KEY AUTOINCREMENT, "
+          "title TEXT NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
+          "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))");
+      await db.execute(
+          "CREATE TABLE Voca(key INTEGER AUTOINCREMENT,  "
+          "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL, isChecked INTEGER NOT NULL"
+          "PRIMARY KEY(key, user_key), "
+          "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))");
+    });
   }
 }
 
-class HomeScreen extends StatefulWidget{
+class HomeScreen extends StatefulWidget {
   final Future<Database> db;
   HomeScreen(this.db);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>{
+class _HomeScreenState extends State<HomeScreen> {
   late List<Diary> diaries;
   @override
   Widget build(BuildContext context) {
@@ -78,14 +76,13 @@ class _HomeScreenState extends State<HomeScreen>{
       appBar: AppBar(
         title: Text("나의 일기"),
         actions: [
-
           // onPressed: (){
           // DatabaseProvider.db.deleteNote(note.id);
           // Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
           // }
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: ()async{
+            onPressed: () async {
               // await Navigator.of(context).push(MaterialPageRoute(builder: (context) => writePost()));
             },
           ),
@@ -141,36 +138,33 @@ class _HomeScreenState extends State<HomeScreen>{
       // ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.note_alt_rounded),
-        onPressed: () async {
-        await Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => wordList()));
-      }
-      ),
-
+          onPressed: () async {
+            await Navigator.of(context)
+                .pushNamed('/vocaList');
+          }),
     );
     // body: Center(
     //   child: Column,
     //);
   }
+
   Widget buildDiary() => StaggeredGridView.countBuilder(
-    padding: EdgeInsets.all(8),
-    itemCount: diaries.length,
-    staggeredTileBuilder: (index) => StaggeredTile.fit(2),
-    crossAxisCount: 4,
-    mainAxisSpacing: 4,
-    crossAxisSpacing: 4,
-    itemBuilder: (context, index) {
-      final diary = diaries[index];
+        padding: EdgeInsets.all(8),
+        itemCount: diaries.length,
+        staggeredTileBuilder: (index) => StaggeredTile.fit(2),
+        crossAxisCount: 4,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
+        itemBuilder: (context, index) {
+          final diary = diaries[index];
 
-      return GestureDetector(
-        onTap: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => SpecificDiary(diarykey: diary.key!),
-          ));
+          return GestureDetector(
+              onTap: () async {
+                await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => SpecificDiary(diarykey: diary.key!),
+                ));
+              },
+              child: DiaryCardWidget(diary: diary, index: index));
         },
-        child: DiaryCardWidget(diary: diary, index: index));
-    },
-  );
-
+      );
 }
-
