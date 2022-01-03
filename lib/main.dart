@@ -50,16 +50,19 @@ class MyApp extends StatelessWidget {
     return await openDatabase(path, version: 2, onCreate: (db, version) async {
       await db.execute(
           "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-          "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL)");
+              "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL)"
+      );
       await db.execute(
           "CREATE TABLE Diary(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-          "title TEXT NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
-          "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))");
+              "title TEXT NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
+              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
+      );
       await db.execute(
-          "CREATE TABLE Voca(key INTEGER AUTOINCREMENT,  "
-          "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL, isChecked INTEGER NOT NULL"
-          "PRIMARY KEY(key, user_key), "
-          "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))");
+          "CREATE TABLE Voca(key INTEGER, "
+              "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL, "
+              "PRIMARY KEY(key, user_key), "
+              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
+      );
     });
   }
 }
