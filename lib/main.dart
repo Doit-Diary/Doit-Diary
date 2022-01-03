@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () async {
-              // await Navigator.of(context).push(MaterialPageRoute(builder: (context) => writePost()));
+               await Navigator.of(context).pushNamed('/writePost');
             },
           ),
         ],
