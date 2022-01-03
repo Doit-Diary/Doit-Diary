@@ -1,11 +1,15 @@
-import 'package:flutter/services.dart';
+import 'dart:convert'; // json 및 utf8
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/cupertino.dart';
+import 'package:sqflite/sqflite.dart'; //db
+import 'package:shared_preferences/shared_preferences.dart'; // 자동로그인
+import 'package:flutter/src/widgets/form.dart';
 import 'package:crypto/crypto.dart';
-import 'package:sqflite/sqflite.dart';
+import 'dart:async';
+
+import 'main_loginsign.dart';
 import 'data/user.dart';
+
 
 class LoginPage extends StatefulWidget {
   final Future<Database> db;
@@ -22,11 +26,6 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
   TextEditingController? _idTextController;
   TextEditingController? _pwTextController;
 
-  static int? key;
-  String? id;
-  String? pw;
-
-
   @override
   void initState() {
     super.initState();
@@ -34,16 +33,71 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
     _pwTextController = TextEditingController();
   }
 
+  Future<SharedPreferences> _pref = SharedPreferences.getInstance();
+  final _formKey = new GlobalKey<FormState>();
+
+  login() async {
+    String uid = _idTextController!.text;
+    String passwd = _pwTextController!.text;
+
+    if (uid.isEmpty) {
+      makeDialog("아이디를 입력해주세요");
+    } else if (passwd.isEmpty) {
+      makeDialog("비밀번호를 입력해주세요");
+    } else {
+      final Database database = await db;
+      database.query('User');
+      var bytes = utf8.encode(_pwTextController!.value.text); // 해쉬함수로 변환
+      var cryptoPw = sha1.convert(bytes);
+      List<Map> res = await database.rawQuery("SELECT * FROM User WHERE "
+          "id = '$uid' AND "
+          "pw = '$cryptoPw'");
+
+      if (res[0] != null) {
+        MyApp.user_key = res[0]["key"];
+        // 지수님 화면으로 이동
+        Navigator.pushNamed(context, "/main");
+
+      } else {
+        // 만약 res[0] == null이면 아이디/비밀번호가 틀렸거나 회원정보가 없는 경우예요 else문 만드셔서 makeDialog 하시면 될 거 같습니다
+      }
+
+      // db.getLoginUser(uid, passwd).then((userData) {
+      //   if (userData != null) {
+      //     setSP(userData).whenComplete(() {
+      //       //Navigator.pushAndRemoveUntil( // 메인페이지로 이동
+      //        //   context,
+      //          // MaterialPageRoute(builder: (_) => ),
+      //            //   (Route<dynamic> route) => false);
+      //     });
+      //   } else {
+      //     makeDialog("Error: 사용자가 존재하지 않습니다");
+      //   }
+      // }).catchError((error) {
+      //   print(error);
+      //   makeDialog("Error: 로그인 실패");
+      // });
+    }
+  }
+
+  Future setSP(User user) async {
+    final SharedPreferences sp = await _pref;
+
+    sp.setString("user_id", user.id!);
+    sp.setString("password", user.pw!);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Do it! Diary'),
-        ),
+      appBar: AppBar(
+        title: Text('Do it! Diary'),
+      ),
       body: Container(
         child: Center(
           child: Column(
-            children: <Widget> [
+            children: <Widget>[
               SizedBox(
                 width: 350,
                 child: TextField(
@@ -70,36 +124,25 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                 height: 30,
               ),
               ElevatedButton(
-                onPressed: () {
-                  if(_idTextController!.value.text.length == 0 ||
-                      _pwTextController!.value.text.length == 0) {
-                    makeDialog('아이디와 비밀번호를 입력해주세요');
-                    // 아이디 혹은 비밀번호가 맞지 않습니다.
-                    // 비밀번호 검증할때 암호화한거 디코딩하기
-                  } else {
-                    // 로그인 기능
-                    //select id, pw from User where id=${_idController!.value.text};
-                    //
-                  }
-                },
+                onPressed: login,
                 child: Text('로그인',
-                            style: TextStyle(color: Colors.black),),
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.amber,
-                              minimumSize: Size(350.0 , 40.0)),),
+                  style: TextStyle(color: Colors.black),),
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.amber,
+                    minimumSize: Size(350.0, 40.0)),),
 
-                SizedBox(
+              SizedBox(
                 height: 20,
               ),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/sign');
-                },
-                child: Text('회원가입',
-                  style: TextStyle(color: Colors.black),),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/sign');
+                  },
+                  child: Text('회원가입',
+                    style: TextStyle(color: Colors.black),),
                   style: ElevatedButton.styleFrom(
                     primary: Colors.yellow,
-                    minimumSize: Size(100.0 , 40.0),
+                    minimumSize: Size(100.0, 40.0),
                   )),
             ],
             mainAxisAlignment: MainAxisAlignment.center,
@@ -112,12 +155,14 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
 
   void makeDialog(String text) {
     showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Text(text),
-        );
-      });
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(text),
+          );
+        });
   }
+
+
 
 }

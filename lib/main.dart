@@ -17,6 +17,9 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+  static int user_key = 0;
+  // 이 user_key가 0일 때는 정윤님 로그인 페이지로 보내시고
+  // user_key가 0이 아닐 때는 그냥 메인 화면 보여주시면 될 거 같아요
 
   // This widget is the root of your application.
   @override
