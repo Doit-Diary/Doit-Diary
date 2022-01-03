@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqlite_api.dart';
+import 'main.dart';
 import 'data/voca.dart';
 
 class AddVoca extends StatefulWidget {
@@ -54,8 +55,7 @@ class _AddVoca extends State<AddVoca> {
                   Voca voca = Voca(
                       eng: engController!.value.text,
                       kor: korController!.value.text,
-                      user_key: 1,
-                      isChecked: 0
+                      user_key: MyApp.user_key
                   );
                   Navigator.of(context).pop(voca);
                 },

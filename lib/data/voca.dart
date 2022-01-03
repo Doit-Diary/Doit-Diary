@@ -12,8 +12,7 @@ class Voca {
       'key': key,
       'eng': eng,
       'kor': kor,
-      'user_key': user_key,
-      'isChecked': isChecked
+      'user_key': user_key
     };
   }
 }

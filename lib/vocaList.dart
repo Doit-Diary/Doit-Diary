@@ -74,7 +74,7 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
                                   actions: <Widget>[
                                     TextButton(
                                         onPressed: () {
-                                          voca.isChecked=1;
+                                          // voca.isChecked=1;
                                           Navigator.of(context).pop(voca);
                                         },
                                         child: Text('예')),
@@ -118,7 +118,7 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
 
   void _deleteVoca(Voca voca) async {
     final Database database = await widget.db;
-    await database.delete('Voca', where: 'isChecked=?', whereArgs: [voca.isChecked]);
+    await database.delete('Voca', where: 'key=?', whereArgs: [voca.key]);
     setState(() {
       vocaList = getVoca();
     });
@@ -142,7 +142,6 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
         eng: maps[i]['eng'].toString(),
         kor: maps[i]['kor'].toString(),
         user_key: maps[i]['user_key'],
-        isChecked: maps[i]['isChecked'],
       );
     });
   }
