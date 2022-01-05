@@ -1,3 +1,4 @@
+import 'package:doit_diary/main.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
@@ -69,29 +70,47 @@ class WritePost extends StatelessWidget {
                     // 임시
                     child: Text('뒤로 가기', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                     onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: Text("작성 중인 내용이 있습니다.\n"
-                                "저장하시겠습니까?"),
-                            actions: <Widget>[
-                              TextButton(
-                                child: new Text("저장하지 않음", style: TextStyle(color: Colors.red)),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                }
-                              ),
-                              TextButton(
-                                child: new Text("저장", style: TextStyle(color: Colors.blue)),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                }
-                              )
-                            ]
-                          );
-                        }
-                      );
+                      if (contentController.value.text.trim().isNotEmpty) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                                return AlertDialog(
+                                    content: Text("작성 중인 내용이 있습니다.\n"
+                                        "저장하시겠습니까?"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                          child: new Text("저장하지 않음",
+                                              style: TextStyle(
+                                                  color: Colors.red)),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          }
+                                      ),
+                                      TextButton(
+                                          child: new Text("저장",
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                              onPressed: () async {
+                                                Diary diary = Diary(
+                                                  /* 임시 저장으로 바꿔야 할 수 있음. 한글로 적용하면 비어서 잠깐 temp로 놔둠 */
+                                                  title: (titleController.value.text.trim().isEmpty ? 'temp' : titleController.value.text.trim()),
+                                                  content: contentController.value.text.trim(),
+                                                  date: DateFormat('yyyy-MM-dd\nHH:mm').format(DateTime.now().add(Duration(hours: 9))),
+                                                  user_key: MyApp.user_key, // 수정 필요
+                                                );
+                                               _insertDiary(diary);
+                                               _selectAllDiary();
+                                               Navigator.pop(context);
+                                               Navigator.pop(context, '임시 저장되었습니다.');
+                                               }
+                                               )
+                                    ]
+                                );
+                            });
+                      } else {
+                        Navigator.pop(context);
+                      }
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.grey),
@@ -148,17 +167,15 @@ class WritePost extends StatelessWidget {
                                             style: TextStyle(color: Colors.blue)),
                                         onPressed: () async {
                                           Diary diary = Diary(
-                                            title: titleController.value.text,
-                                            content: contentController.value.text,
+                                            title: titleController.value.text.trim(),
+                                            content: contentController.value.text.trim(),
                                             date: DateFormat('yyyy-MM-dd\nHH:mm').format(DateTime.now().add(Duration(hours: 9))),
-                                            user_key: 1,  // 수정 필요
+                                            user_key: MyApp.user_key,  // 수정 필요
                                           );
                                           _insertDiary(diary);
-                                          Navigator.pop(context);
-                                          titleController.clear();
-                                          contentController.clear();
                                           _selectAllDiary();
-                                          // Navigator.of(context).pop(diary);
+                                          Navigator.pop(context);
+                                          Navigator.pop(context, '일기가 저장되었습니다.');
                                         }
                                     )
                                   ]

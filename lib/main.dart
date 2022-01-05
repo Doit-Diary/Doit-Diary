@@ -8,6 +8,7 @@ import 'addVoca.dart';
 import 'writePost.dart';
 import 'specificDiary.dart';
 import 'signPage.dart';
+
 //import 'Widget/DiaryForm.dart';
 import 'Widget/DiaryCard.dart';
 
@@ -75,6 +76,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late List<Diary> diaries;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +90,17 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () async {
-               await Navigator.of(context).pushNamed('/writePost');
+               final msg = await Navigator.of(context).pushNamed('/writePost');
+               print(msg);
+               if (msg != null) {
+                 /* 토스트 왜 안 나오죠?? 이상하네 */
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(msg.toString()),
+                          duration: Duration(seconds: 2),
+                      )
+                  );
+               }
             },
           ),
         ],
