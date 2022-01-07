@@ -1,3 +1,4 @@
+import 'package:doit_diary/revisePost.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -38,7 +39,12 @@ class _SpecificDiaryState extends State<SpecificDiary>{
                 value: 'ReviseButton',
                 child: ListTile(
                   title: Text('수정하기'),
+                  onTap: () async {
+              await Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => RevisePost()),
+              );}
                 )
+
             ),
             PopupMenuItem(
                 value: 'DeleteButton',
@@ -65,12 +71,12 @@ class _SpecificDiaryState extends State<SpecificDiary>{
             ),
           ),
           SizedBox(height: 8),
-          Text(
-            /* 날짜 이거 어떻게 바꾸는지 모르겠네요 */
-            /* 바꿔주세여 */
-            DateFormat.yMMMd().format(diary.date),
-            style: TextStyle(color: Colors.white38),
-          ),
+          // Text(
+          //   /* 날짜 이거 어떻게 바꾸는지 모르겠네요 */
+          //   /* 바꿔주세여 */
+          //   DateFormat.yMMMd().format(diary.date!),
+          //   style: TextStyle(color: Colors.white38),
+          // ),
           SizedBox(height: 8),
           Text(
             arguments.content!,
