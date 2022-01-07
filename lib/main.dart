@@ -1,16 +1,15 @@
 import 'package:doit_diary/data/diary.dart';
 import 'package:doit_diary/vocaList.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'addVoca.dart';
 import 'writePost.dart';
 import 'specificDiary.dart';
 import 'signPage.dart';
-
 //import 'Widget/DiaryForm.dart';
 import 'Widget/DiaryCard.dart';
+// import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,7 +36,7 @@ class MyApp extends StatelessWidget {
       routes: {
         "/": (context) => HomeScreen(database),
         "/sign": (context) => SignPage(database),
-        "/SpecificDiary": (context) => SpecificDiary(diarykey: 0),
+        "/SpecificDiary": (context) => SpecificDiary(database),
         "/add": (context) => AddVoca(database),
         "/vocaList": (context) => VocaList(database),
         "/writePost": (context) => WritePost(database)
@@ -51,18 +50,15 @@ class MyApp extends StatelessWidget {
     return await openDatabase(path, version: 2, onCreate: (db, version) async {
       await db.execute(
           "CREATE TABLE User(key INTEGER PRIMARY KEY AUTOINCREMENT, "
-              "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL)"
-      );
+              "id TEXT NOT NULL UNIQUE, pw TEXT NOT NULL, nickname TEXT NOT NULL)");
       await db.execute(
           "CREATE TABLE Diary(key INTEGER PRIMARY KEY AUTOINCREMENT, "
               "title TEXT NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, user_key INTEGER NOT NULL, "
-              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
-      );
+              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))");
       await db.execute(
           "CREATE TABLE Voca(key INTEGER PRIMARY KEY AUTOINCREMENT, "
               "eng TEXT NOT NULL, kor TEXT NOT NULL, user_key INTEGER NOT NULL, "
-              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))"
-      );
+              "CONSTRAINT key_fk FOREIGN KEY(user_key) REFERENCES User(key))");
     });
   }
 }
@@ -70,12 +66,34 @@ class MyApp extends StatelessWidget {
 class HomeScreen extends StatefulWidget {
   final Future<Database> db;
   HomeScreen(this.db);
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<StatefulWidget> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late List<Diary> diaries;
+  Future<List<Diary>>? diaries;
+
+  @override
+  void initState() {
+    super.initState();
+    diaries = refreshDiary();
+  }
+
+  Future<List<Diary>> refreshDiary() async {
+    final Database database = await widget.db;
+    final List<Map<String, dynamic>> maps = await database.query('Diary');
+
+    return List.generate(maps.length, (i) {
+      return Diary(
+        key: maps[i]['key'],
+        title: maps[i]['title'].toString(),
+        content: maps[i]['content'].toString(),
+        date: maps[i]['date'],
+        user_key: maps[i]['user_key'],
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,76 +101,70 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text("나의 일기"),
         actions: [
-          // onPressed: (){
-          // DatabaseProvider.db.deleteNote(note.id);
-          // Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
-          // }
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () async {
-               final msg = await Navigator.of(context).pushNamed('/writePost');
-               print(msg);
-               if (msg != null) {
-                 /* 토스트 왜 안 나오죠?? 이상하네 */
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text(msg.toString()),
-                          duration: Duration(seconds: 2),
-                      )
-                  );
-               }
+              final msg = await Navigator.of(context).pushNamed('/writePost');
+              setState(() {
+                diaries = refreshDiary();
+              });
+              if (msg != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(msg.toString()),
+                      duration: Duration(seconds: 2),
+                    )
+                );
+              }
             },
           ),
         ],
       ),
-      // body: FutureBuilder(
-      //   future: getDairies()
-      //   builder: (context, noteData){
-      //     switch(noteData.connectionState){
-      //       case ConnectionState.waiting:
-      //         {
-      //           return Center(child: CircularProgressIndicator());// 로딩중 표시
-      //         }
-      //       case ConnectionState.done:
-      //         {
-      //           if(noteData.data == Null){//Null값 체크
-      //             return Center(
-      //               child: Text("일기를 작성하지 않았습니다"),
-      //             );
-      //           }
-      //           else{
-      //             return Padding(
-      //               padding: const EdgeInsets.all(8.0),//여백주기
-      //               child: ListView.builder(
-      //                 //itemCount : noteData.data.length,
-      //                 itemBuilder: (context, index){//데이터 받아오기
-      //                   String title = noteData.data[index]['title'];
-      //                   String content = noteData.data[index]['content'];
-      //                   String date = noteData.data[index]['date'];
-      //                   String user_key = noteData.data[index]['user_key'];
-      //                   return Card(child: ListTile(
-      //                     onTap: (){
-      //                       Diary note = noteData.data[index] as Diary;
-      //                       Navigator.pushNamed(context,"/SpecificDiary", arguments: Diary(
-      //                         title = title,
-      //                         content = content,
-      //                         date = date,
-      //                         user_key = user_key,
-      //                       )
-      //                       );
-      //                     },
-      //                     title: Text('title'),
-      //                     subtitle: Text('content'),
-      //                   ),
-      //                   );
-      //                 },
-      //               ),
-      //             );
-      //           }}
-      //     }
-      //
-      //   },
-      // ),
+      body: Container(
+        child: FutureBuilder(
+          builder: (context, noteData) {
+            switch(noteData.connectionState){
+              case ConnectionState.none:
+                return CircularProgressIndicator();
+              case ConnectionState.active:
+                return CircularProgressIndicator();
+              case ConnectionState.waiting:
+                  return Center(child: CircularProgressIndicator());// 로딩중 표시
+              case ConnectionState.done:
+                print(noteData);
+                  if(noteData.hasData){//Null값 체크
+                    return ListView.builder(
+                      itemCount : (noteData.data as List<Diary>).length,
+                      itemBuilder: (context, index){//데이터 받아오기
+                        Diary diary = (noteData.data as List<Diary>)[index];
+                        String title = diary.title!;
+                        String content = diary.content!;
+                        String date = diary.date!;
+                        return Card(child: ListTile(
+                          onTap: (){
+                            Navigator.pushNamed(context,"/SpecificDiary", arguments: Diary(
+                              title: diary.title!,
+                              content: diary.content!,
+                              date: diary.date!,
+                              user_key: diary.user_key,
+                            )
+                            );
+                          },
+                          title: Text(title),
+                          subtitle: Text(content),
+                        ),
+                        );
+                      },
+                    );
+                  }
+                  else {
+                    return Text("일기를 작성하지 않았습니다");
+                  }}
+            },
+          future: refreshDiary(),
+
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.note_alt_rounded),
           onPressed: () async {
@@ -160,28 +172,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 .pushNamed('/vocaList');
           }),
     );
-    // body: Center(
-    //   child: Column,
-    //);
   }
-
-  Widget buildDiary() => StaggeredGridView.countBuilder(
-        padding: EdgeInsets.all(8),
-        itemCount: diaries.length,
-        staggeredTileBuilder: (index) => StaggeredTile.fit(2),
-        crossAxisCount: 4,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-        itemBuilder: (context, index) {
-          final diary = diaries[index];
-
-          return GestureDetector(
-              onTap: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => SpecificDiary(diarykey: diary.key!),
-                ));
-              },
-              child: DiaryCardWidget(diary: diary, index: index));
-        },
-      );
 }
+
+
+// Widget buildDiary() => StaggeredGridView.countBuilder(
+//   padding: EdgeInsets.all(8),
+//   itemCount: diaries.length,
+//   staggeredTileBuilder: (index) => StaggeredTile.fit(2),
+//   crossAxisCount: 4,
+//   mainAxisSpacing: 4,
+//   crossAxisSpacing: 4,
+//   itemBuilder: (context, index) {
+//     final diary = diaries[index];
+//
+//     return GestureDetector(
+//         onTap: () async {
+//           await Navigator.of(context).push(MaterialPageRoute(
+//             builder: (context) => SpecificDiary(diarykey: diary.key!),
+//           ));
+//         },
+//         child: DiaryCardWidget(diary: diary, index: index));
+//   },
+// );
+// }
