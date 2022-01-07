@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'data/diary.dart';
+import 'package:sqflite/sqflite.dart';
 
 class RevisePost extends StatelessWidget {
+  final Future<Database> db;
+  RevisePost(this.db);
+
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context)?.settings.arguments as Diary;
+
     final titleController = TextEditingController();
     final contentController = TextEditingController();
+    titleController.text = arguments.title!;
+    contentController.text = arguments.content!;
 
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text('일기 수정', style: TextStyle(color: Colors.black)),
-          backgroundColor: const Color(0xffffef6f),
+          backgroundColor: Colors.amber,
         ),
         body: Container(
             padding: const EdgeInsets.all(20.0),
@@ -25,13 +35,13 @@ class RevisePost extends StatelessWidget {
                             keyboardType: TextInputType.text,
                             maxLines: 1,
                             decoration: InputDecoration(
-                                labelText: '제목',
+                                labelText: 'title',
                                 enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(width: 3, color: Colors.grey),
                                     borderRadius: BorderRadius.circular(15)
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(width: 3, color: const Color(0xffffef6f)),
+                                    borderSide: BorderSide(width: 3, color: Colors.amber),
                                     borderRadius: BorderRadius.circular(15)
                                 )
                             )
@@ -39,19 +49,29 @@ class RevisePost extends StatelessWidget {
                       ),
                       Container(
                           padding: EdgeInsets.only(bottom: 25),
-                          child: TextField(
-                              controller: contentController,
-                              keyboardType: TextInputType.text,
-                              maxLines: 20,
-                              decoration: InputDecoration(
-                                  labelText: '내용',
-                                  enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(width: 3, color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(15)
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(width: 3, color: const Color(0xffffef6f)),
-                                      borderRadius: BorderRadius.circular(15)
+                          child: new Container(
+                              height: 400,
+                              child: new SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  reverse: true,
+                                  child: SizedBox(
+                                      height: 400,
+                                      child: TextField(
+                                          controller: contentController,
+                                          keyboardType: TextInputType.multiline,
+                                          maxLines: 20,
+                                          decoration: InputDecoration(
+                                              labelText: 'content',
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(width: 3, color: Colors.grey),
+                                                  borderRadius: BorderRadius.circular(15)
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(width: 3, color: Colors.amber),
+                                                  borderRadius: BorderRadius.circular(15)
+                                              )
+                                          )
+                                      )
                                   )
                               )
                           )
@@ -73,6 +93,7 @@ class RevisePost extends StatelessWidget {
                                               TextButton(
                                                   child: new Text("취소", style: TextStyle(color: Colors.red)),
                                                   onPressed: () {
+                                                    Navigator.pop(context);
                                                     Navigator.pop(context);
                                                   }
                                               ),
@@ -102,30 +123,66 @@ class RevisePost extends StatelessWidget {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return AlertDialog(
-                                          content: Text("이대로 저장하시겠습니까?"),
-                                          actions: <Widget>[
-                                            TextButton(
-                                                child: new Text("계속 작성",
-                                                    style: TextStyle(color: Colors.red)),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                }
-                                            ),
-                                            TextButton(
-                                                child: new Text("저장",
-                                                    style: TextStyle(color: Colors.blue)),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                }
-                                            )
-                                          ]
-                                      );
+                                      if (titleController.text.trim() == '') {
+                                        return AlertDialog(
+                                            content: Text("제목을 입력해주세요."),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                  child: new Text("확인"),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  }
+                                              )
+                                            ]
+                                        );
+                                      } else if (contentController.text.trim() == '') {
+                                        return AlertDialog(
+                                            content: Text("내용을 입력해주세요."),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                  child: new Text("확인"),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  }
+                                              )
+                                            ]
+                                        );
+                                      } else {
+                                        return AlertDialog(
+                                            content: Text("이대로 저장하시겠습니까?"),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                  child: new Text("계속 작성",
+                                                      style: TextStyle(color: Colors.red)),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  }
+                                              ),
+                                              TextButton(
+                                                  child: new Text("저장",
+                                                      style: TextStyle(color: Colors.blue)),
+                                                  onPressed: () {
+                                                    Diary diary = Diary(
+                                                      key: arguments.key,
+                                                      title: (titleController.value.text.trim().isEmpty ? 'temp' : titleController.value.text.trim()),
+                                                      content: contentController.value.text.trim(),
+                                                      date: arguments.date,
+                                                      user_key: arguments.user_key, // 수정 필요
+                                                    );
+                                                    _updateDiary(diary);
+                                                    /* 여기다 */
+                                                    Navigator.of(context).pop();
+                                                    Navigator.of(context).pop(diary);
+                                                  }
+                                              )
+                                            ]
+                                        );
+                                      }
                                     },
                                   );
                                 },
                                 style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(const Color(0xffffef6f)),
+                                    backgroundColor: MaterialStateProperty.all(Colors.amber),
                                     padding: MaterialStateProperty.all(EdgeInsets.all(15)),
                                     textStyle: MaterialStateProperty.all(TextStyle(
                                         fontSize: 20
@@ -139,5 +196,19 @@ class RevisePost extends StatelessWidget {
             )
         )
     );
+  }
+
+  void _updateDiary(Diary diary) async {
+    final Database database = await db;
+    await database.update('Diary', diary.toMap(),
+        where: 'key = ?', whereArgs: [diary.key],
+        conflictAlgorithm: ConflictAlgorithm.replace
+    );
+  }
+
+  void _insertDiary(Diary diary) async {
+    final Database database = await db;
+    await database.insert('Diary', diary.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

@@ -1,4 +1,3 @@
-import 'package:doit_diary/revisePost.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -15,8 +14,9 @@ class SpecificDiary extends StatefulWidget{
 }
 
 class _SpecificDiaryState extends State<SpecificDiary>{
-  late Diary diary;
   bool isLoading = false;
+  String? diary_title;
+  String? diary_content;
 
   @override
   void initState(){
@@ -29,6 +29,9 @@ class _SpecificDiaryState extends State<SpecificDiary>{
   Widget build(BuildContext context){
     final arguments = ModalRoute.of(context)?.settings.arguments as Diary;
 
+    diary_title = arguments.title!;
+    diary_content = arguments.content!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("나의 일기"),//앱바
@@ -40,9 +43,22 @@ class _SpecificDiaryState extends State<SpecificDiary>{
                 child: ListTile(
                   title: Text('수정하기'),
                   onTap: () async {
-              await Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => RevisePost()),
-              );}
+                    await Navigator.pushNamed(context,"/revisePost", arguments: Diary(
+                      key: arguments.key,
+                      title: arguments.title!,
+                      content: arguments.content!,
+                      date: arguments.date!,
+                      user_key: arguments.user_key,
+                    )).then((val) {
+                      if (val != null) {
+                        // setState(() {
+                        //   diary_title = ((new_diary as Diary).title!);
+                        //   diary_content = ((new_diary as Diary).content!);
+                        // });
+                        Navigator.pop(context, val);
+                      }
+                    });
+                  }
                 )
 
             ),
@@ -63,7 +79,7 @@ class _SpecificDiaryState extends State<SpecificDiary>{
         padding: EdgeInsets.symmetric(vertical: 8),
         children: [
           Text(
-            arguments.title!,
+            diary_title!,
             style: TextStyle(
               color: Colors.black,
               fontSize: 22,
@@ -79,7 +95,7 @@ class _SpecificDiaryState extends State<SpecificDiary>{
           // ),
           SizedBox(height: 8),
           Text(
-            arguments.content!,
+            diary_content!,
             style: TextStyle(color: Colors.black, fontSize: 18),
           )
         ],

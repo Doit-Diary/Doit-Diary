@@ -1,5 +1,4 @@
 import 'package:doit_diary/data/diary.dart';
-import 'package:doit_diary/vocaList.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -7,6 +6,9 @@ import 'addVoca.dart';
 import 'writePost.dart';
 import 'specificDiary.dart';
 import 'signPage.dart';
+import 'package:doit_diary/vocaList.dart';
+import 'revisePost.dart';
+
 //import 'Widget/DiaryForm.dart';
 import 'Widget/DiaryCard.dart';
 // import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -39,7 +41,8 @@ class MyApp extends StatelessWidget {
         "/SpecificDiary": (context) => SpecificDiary(database),
         "/add": (context) => AddVoca(database),
         "/vocaList": (context) => VocaList(database),
-        "/writePost": (context) => WritePost(database)
+        "/writePost": (context) => WritePost(database),
+        "/revisePost": (context) => RevisePost(database),
       },
     );
   }
@@ -73,6 +76,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Future<List<Diary>>? diaries;
+  String? diary_title;
+  String? diary_content;
 
   @override
   void initState() {
@@ -136,21 +141,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount : (noteData.data as List<Diary>).length,
                       itemBuilder: (context, index){//데이터 받아오기
                         Diary diary = (noteData.data as List<Diary>)[index];
-                        String title = diary.title!;
-                        String content = diary.content!;
+                        diary_title = diary.title!;
+                        diary_content = diary.content!;
                         String date = diary.date!;
                         return Card(child: ListTile(
-                          onTap: (){
-                            Navigator.pushNamed(context,"/SpecificDiary", arguments: Diary(
+                          onTap: () async {
+                            await Navigator.pushNamed(context, "/SpecificDiary", arguments: Diary(
+                              key: diary.key,
                               title: diary.title!,
                               content: diary.content!,
                               date: diary.date!,
                               user_key: diary.user_key,
-                            )
-                            );
+                            )).then((val) {
+                              if (val != null) {
+                                print('maybe here?');
+                                print(val);
+                                // setState(() {
+                                //   diary_title = ((val as Diary).title!);
+                                //   diary_content = ((val as Diary).content!);
+                                // });
+                              }
+                            });
                           },
-                          title: Text(title),
-                          subtitle: Text(content),
+                          title: Text(diary_title!),
+                          subtitle: Text(diary_content!),
                         ),
                         );
                       },
