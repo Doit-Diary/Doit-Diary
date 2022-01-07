@@ -170,9 +170,11 @@ class RevisePost extends StatelessWidget {
                                                       user_key: arguments.user_key, // 수정 필요
                                                     );
                                                     _updateDiary(diary);
+                                                    _selectAllDiary();
                                                     /* 여기다 */
                                                     Navigator.of(context).pop();
-                                                    Navigator.of(context).pop(diary);
+                                                    Navigator.of(context).pop();
+                                                    Navigator.of(context).pop();
                                                   }
                                               )
                                             ]
@@ -206,9 +208,9 @@ class RevisePost extends StatelessWidget {
     );
   }
 
-  void _insertDiary(Diary diary) async {
+  void _selectAllDiary() async {
     final Database database = await db;
-    await database.insert('Diary', diary.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    List<Map> result = await database.query('Diary');
+    result.forEach((row) => print(row));
   }
 }

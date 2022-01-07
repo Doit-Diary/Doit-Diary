@@ -152,16 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               content: diary.content!,
                               date: diary.date!,
                               user_key: diary.user_key,
-                            )).then((val) {
-                              if (val != null) {
-                                print('maybe here?');
-                                print(val);
-                                // setState(() {
-                                //   diary_title = ((val as Diary).title!);
-                                //   diary_content = ((val as Diary).content!);
-                                // });
-                              }
-                            });
+                            ));
                           },
                           title: Text(diary_title!),
                           subtitle: Text(diary_content!),

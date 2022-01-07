@@ -10,18 +10,35 @@ class SpecificDiary extends StatefulWidget{
   SpecificDiary(this.db);
 
   @override
-  State<StatefulWidget> createState() => _SpecificDiaryState();
+  State<StatefulWidget> createState() => _SpecificDiaryState(db);
 }
 
 class _SpecificDiaryState extends State<SpecificDiary>{
+  final Future<Database> db;
+  _SpecificDiaryState(this.db);
+
   bool isLoading = false;
-  String? diary_title;
+  String? diary_title = '';
   String? diary_content;
+  Text? titleText;
+  Text? contentText;
 
   @override
   void initState(){
     super.initState();
   }
+
+  void changeDiary(arguments) {
+    setState(() async {
+      final Database database = await db;
+      /* 하... WHERE 넣어서 SELECT 하는 수밖에 없다 진짜.. */
+      var res = await database.rawQuery('SELECT * FROM Diary WHERE key = ?', [arguments.key]);
+      diary_title = res.first['title'] as String?;
+      diary_content = res.first['content'] as String?;
+      print(diary_title);
+    });
+  }
+
   Future refreshDiary() async{
     setState(() => isLoading = true);
     //this.diary = await Diary.instance.readDiary(widget.diarykey);
@@ -31,6 +48,18 @@ class _SpecificDiaryState extends State<SpecificDiary>{
 
     diary_title = arguments.title!;
     diary_content = arguments.content!;
+    titleText = Text(
+      diary_title!,
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+    contentText = Text(
+      diary_content!,
+      style: TextStyle(color: Colors.black, fontSize: 18),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -43,21 +72,14 @@ class _SpecificDiaryState extends State<SpecificDiary>{
                 child: ListTile(
                   title: Text('수정하기'),
                   onTap: () async {
-                    await Navigator.pushNamed(context,"/revisePost", arguments: Diary(
+                    Navigator.pushNamed(context,"/revisePost", arguments: Diary(
                       key: arguments.key,
                       title: arguments.title!,
                       content: arguments.content!,
                       date: arguments.date!,
                       user_key: arguments.user_key,
-                    )).then((val) {
-                      if (val != null) {
-                        // setState(() {
-                        //   diary_title = ((new_diary as Diary).title!);
-                        //   diary_content = ((new_diary as Diary).content!);
-                        // });
-                        Navigator.pop(context, val);
-                      }
-                    });
+                    )).then((_) => setState(() {}));
+                    changeDiary(arguments);
                   }
                 )
 
@@ -78,14 +100,7 @@ class _SpecificDiaryState extends State<SpecificDiary>{
       child: ListView(
         padding: EdgeInsets.symmetric(vertical: 8),
         children: [
-          Text(
-            diary_title!,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          titleText!,
           SizedBox(height: 8),
           // Text(
           //   /* 날짜 이거 어떻게 바꾸는지 모르겠네요 */
@@ -94,10 +109,7 @@ class _SpecificDiaryState extends State<SpecificDiary>{
           //   style: TextStyle(color: Colors.white38),
           // ),
           SizedBox(height: 8),
-          Text(
-            diary_content!,
-            style: TextStyle(color: Colors.black, fontSize: 18),
-          )
+          contentText!
         ],
       ),
     ),
