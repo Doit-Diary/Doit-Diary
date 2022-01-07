@@ -41,7 +41,7 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
               case ConnectionState.active:
                 return CircularProgressIndicator();
               case ConnectionState.done:
-                if(snapshot.hasData){
+                if((snapshot.data as List).isNotEmpty){
                   return ListView.builder(
                     itemBuilder: (context,index){
                       Voca voca = (snapshot.data as List<Voca>)[index];

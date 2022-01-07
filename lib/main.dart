@@ -131,8 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
               case ConnectionState.waiting:
                   return Center(child: CircularProgressIndicator());// 로딩중 표시
               case ConnectionState.done:
-                print(noteData);
-                  if(noteData.hasData){//Null값 체크
+                if ((noteData.data as List).isNotEmpty){//Null값 체크
                     return ListView.builder(
                       itemCount : (noteData.data as List<Diary>).length,
                       itemBuilder: (context, index){//데이터 받아오기
