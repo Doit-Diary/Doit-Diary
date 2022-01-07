@@ -53,14 +53,23 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
           "id = '$uid' AND "
           "pw = '$cryptoPw'");
 
-      if (res[0] != null) {
-        MyApp.user_key = res[0]["key"];
-        // 지수님 화면으로 이동
-        Navigator.pushNamed(context, "/main");
-
-      } else {
-        // 만약 res[0] == null이면 아이디/비밀번호가 틀렸거나 회원정보가 없는 경우예요 else문 만드셔서 makeDialog 하시면 될 거 같습니다
+      try {
+        if (res[0] != null) {
+          MyApp.user_key = res[0]["key"];
+          Navigator.pushNamed(context, "/main"); // 지수님 화면으로 이동
+        }
+      } catch (Exception) {
+        // Unhandled Exception: Null check operator used on a null value
+        makeDialog("아이디 혹은 비밀번호가 맞지 않습니다");
       }
+
+      // if (res[0] != null) {
+      //   MyApp.user_key = res[0]["key"];
+      //   Navigator.pushNamed(context, "/main"); // 지수님 화면으로 이동
+      // } else {
+      //
+      // }
+
 
       // db.getLoginUser(uid, passwd).then((userData) {
       //   if (userData != null) {
@@ -79,6 +88,7 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
       // });
     }
   }
+
 
   Future setSP(User user) async {
     final SharedPreferences sp = await _pref;

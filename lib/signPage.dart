@@ -14,14 +14,17 @@ class SignPage extends StatefulWidget {
 
 class _SignPage extends State<SignPage> {
   final Future<Database> db;
-
   _SignPage(this.db);
 
   TextEditingController? _idTextController;
   TextEditingController? _pwTextController;
   TextEditingController? _pwCheckTextController;
   TextEditingController? _nickNameTextController;
-  var _isChecked = false;
+
+  // 비밀번호 검열
+  final validNumbers = RegExp(r'(\d+)');
+  final validAlphabet = RegExp(r'[a-zA-Z]');
+  final validSpecial = RegExp(r'^[a-zA-Z0-9 ]+$');
 
   @override
   void initState() {
@@ -31,8 +34,6 @@ class _SignPage extends State<SignPage> {
     _pwCheckTextController = TextEditingController();
     _nickNameTextController = TextEditingController();
   }
-
-  final _formKey = new GlobalKey<FormState>();
 
 
   @override
@@ -48,25 +49,13 @@ class _SignPage extends State<SignPage> {
               child: Row(
                 children: <Widget>[
                   SizedBox(
-                      width: 100,
-                      child: Text('약관 동의', style: TextStyle(fontSize: 20),)),
-                  Checkbox(
-                    activeColor: Colors.white,
-                    checkColor: Colors.blue,
-                    value: _isChecked,
-                    onChanged: (value) {
-                      setState(() {
-                        _isChecked = value!;
-                      });
-                    },),
+                      width: 300,
+                      child: Text('환영합니다!', style: TextStyle(fontSize: 40),)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.start,
               ),
               height: 100,
             ),
-            SizedBox(
-              width: 400, height: 200,
-              child: Text('(약관내용)'),),
             SizedBox(
               height: 20,),
             SizedBox(
@@ -91,6 +80,7 @@ class _SignPage extends State<SignPage> {
               width: 350,
               child: TextField(
                 controller: _pwTextController,
+                obscureText: true,
                 maxLines: 1,
                 decoration: InputDecoration(hintText: '비밀번호를 입력해주세요',
                     border: OutlineInputBorder()),),),
@@ -104,6 +94,7 @@ class _SignPage extends State<SignPage> {
               width: 350,
               child: TextField(
                 controller: _pwCheckTextController,
+                obscureText: true,
                 maxLines: 1,
                 decoration: InputDecoration(hintText: '비밀번호를 입력해주세요',
                     border: OutlineInputBorder()),),),
@@ -124,10 +115,23 @@ class _SignPage extends State<SignPage> {
               height: 30,),
             ElevatedButton(
               onPressed: () async {
+                // 비밀번호 불일치
                 if (_pwTextController!.value.text !=
                     _pwCheckTextController!.value.text) {
                   makeDialog('비밀번호가 일치하지 않습니다');
-                } else {
+
+                // 비밀번호 조건 검열
+                } else  if(_pwTextController!.value.text.length < 6) {
+                  validatePW(_pwTextController!.value.text);
+                  
+                // 빈칸 존재시 오류  
+                } else if (_nickNameTextController!.value.text.length == 0 ||
+                    _pwCheckTextController!.value.text.length == 0 ||
+                    _idTextController!.value.text.length == 0 ) {
+                  makeDialog("빈칸이 있습니다");
+                  
+                 // 회원가입 성공
+                 } else {
                   var bytes = utf8.encode(_pwTextController!.value.text); // 해쉬함수로 변환
                   var cryptoPw = sha1.convert(bytes);
 
@@ -173,7 +177,17 @@ class _SignPage extends State<SignPage> {
     result.forEach((row) => print(row));
   }
 
+
+  bool? validatePW(String value) {
+    RegExp regex = new RegExp(r'/^(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/');
+    if (!regex.hasMatch(value)) {
+       makeDialog("비밀번호를 조건에 맞추어주세요");
+       return false;
+    }
+  }
+
 }
+
 
 
 // import 'dart:convert';
