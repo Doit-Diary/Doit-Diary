@@ -17,7 +17,7 @@ class WritePost extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('일기 작성', style: TextStyle(color: Colors.black)),
-        backgroundColor: const Color(0xffffef6f),
+        backgroundColor: Colors.amber
       ),
       body: Container(
           padding: const EdgeInsets.all(20.0),
@@ -38,7 +38,7 @@ class WritePost extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 3, color: const Color(0xffffef6f)),
+                            borderSide: BorderSide(width: 3, color: Colors.amber),
                             borderRadius: BorderRadius.circular(15)
                         )
                     )
