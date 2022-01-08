@@ -28,17 +28,6 @@ class _SpecificDiaryState extends State<SpecificDiary>{
     super.initState();
   }
 
-  void changeDiary(arguments) {
-    setState(() async {
-      final Database database = await db;
-      /* 하... WHERE 넣어서 SELECT 하는 수밖에 없다 진짜.. */
-      var res = await database.rawQuery('SELECT * FROM Diary WHERE key = ?', [arguments.key]);
-      diary_title = res.first['title'] as String?;
-      diary_content = res.first['content'] as String?;
-      print(diary_title);
-    });
-  }
-
   Future refreshDiary() async{
     setState(() => isLoading = true);
     //this.diary = await Diary.instance.readDiary(widget.diarykey);
@@ -71,7 +60,7 @@ class _SpecificDiaryState extends State<SpecificDiary>{
                 value: 'ReviseButton',
                 child: ListTile(
                   title: Text('수정하기'),
-                  onTap: () async {
+                  onTap: () {
                     Navigator.pushNamed(context,"/revisePost", arguments: Diary(
                       key: arguments.key,
                       title: arguments.title!,
@@ -79,7 +68,6 @@ class _SpecificDiaryState extends State<SpecificDiary>{
                       date: arguments.date!,
                       user_key: arguments.user_key,
                     )).then((_) => setState(() {}));
-                    changeDiary(arguments);
                   }
                 )
 
