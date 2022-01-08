@@ -172,9 +172,7 @@ class RevisePost extends StatelessWidget {
                                                     _updateDiary(diary);
                                                     _selectAllDiary();
                                                     /* 여기다 */
-                                                    Navigator.of(context).pop();
-                                                    Navigator.of(context).pop();
-                                                    Navigator.of(context).pop();
+                                                    Navigator.of(context).popUntil((route) => route.isFirst);
                                                   }
                                               )
                                             ]

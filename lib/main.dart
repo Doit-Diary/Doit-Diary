@@ -153,9 +153,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               date: diary.date!,
                               user_key: diary.user_key,
                             ));
+                            setState(() {
+                              diaries = refreshDiary();
+                            });
                           },
                           title: Text(diary_title!),
                           subtitle: Text(diary_content!),
+
                         ),
                         );
                       },
