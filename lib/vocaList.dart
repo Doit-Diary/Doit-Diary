@@ -1,8 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'data/voca.dart';
+import 'main.dart';
 
 class VocaList extends StatefulWidget{
   final Future<Database> db;
@@ -29,7 +31,6 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
         title: Text('단어장', style: TextStyle(color: Colors.black)),
         backgroundColor: const Color(0xffffef6f),
       ),
-
       body: Container(
         child: FutureBuilder(
           builder: (context,snapshot){
@@ -41,54 +42,54 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
               case ConnectionState.active:
                 return CircularProgressIndicator();
               case ConnectionState.done:
-                if((snapshot.data as List).isNotEmpty){
+                if((snapshot.data as List).isNotEmpty&& (snapshot.data as List).contains(MyApp.user_key)){
                   return ListView.builder(
                     itemBuilder: (context,index){
                       Voca voca = (snapshot.data as List<Voca>)[index];
-                      return ListTile(
-                        title:Text(
-                          voca.eng!,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        subtitle: Container(
-                          child: Column(
-                            children: <Widget>[
-                              Text(
-                                voca.kor!,
-                                style: TextStyle(fontSize: 20),),
-                              Container(
-                                height: 1,
-                                color: Colors.blue,
-                              )
-                            ],
+                        return ListTile(
+                          title:Text(
+                            voca.eng!,
+                            style: TextStyle(fontSize: 20),
                           ),
-                        ),
-                        onLongPress: () async {
-                          Voca result = await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('${voca.eng} 삭제'),
-                                  content:
-                                  Text('${voca.kor}를 삭제하시겠습니까?'),
-                                  actions: <Widget>[
-                                    TextButton(
-                                        onPressed: () {
-                                          // voca.isChecked=1;
-                                          Navigator.of(context).pop(voca);
-                                        },
-                                        child: Text('예')),
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text('아니요')),
-                                  ],
-                                );
-                              });
-                          _deleteVoca(result);
-                        },
-                      );
+                          subtitle: Container(
+                            child: Column(
+                              children: <Widget>[
+                                Text(
+                                  voca.kor!,
+                                  style: TextStyle(fontSize: 20),),
+                                Container(
+                                  height: 1,
+                                  color: Colors.blue,
+                                )
+                              ],
+                            ),
+                          ),
+                          onLongPress: () async {
+                            Voca result = await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('${voca.eng} 삭제'),
+                                    content:
+                                    Text('${voca.kor}를 삭제하시겠습니까?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                          onPressed: () {
+                                            // voca.isChecked=1;
+                                            Navigator.of(context).pop(voca);
+                                          },
+                                          child: Text('예')),
+                                      TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('아니요')),
+                                    ],
+                                  );
+                                });
+                            _deleteVoca(result);
+                          },
+                        );
                     },
                     itemCount: (snapshot.data as List<Voca>).length,
                   );
