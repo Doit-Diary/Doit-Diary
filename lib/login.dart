@@ -45,17 +45,19 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
       database.query('User');
       var bytes = utf8.encode(_pwTextController!.value.text); // 해쉬함수로 변환
       var cryptoPw = sha1.convert(bytes);
-      List<Map> res = await database.rawQuery("SELECT * FROM User WHERE "
+      var res = await database.rawQuery("SELECT * FROM User WHERE "
           "id = '$uid' AND "
           "pw = '$cryptoPw'");
 
       // 로그인 성공
       try {
         if (res[0] != null) {
-          MyApp.user_key = res[0]["key"];
-          Navigator.of(context).pop();
-          Navigator.pushNamed(context, "/main"); // 지수님 화면으로 이동
-          //Navigator.of(context).pop(MyApp.user_key);
+          print((res[0]["key"]));
+          setState(() {
+            MyApp.user_key = int.parse(res[0]["key"].toString());
+          });
+          Navigator.pushReplacementNamed(context, '/home', arguments: [int.parse(res[0]["key"].toString())]);
+          print(MyApp.user_key);
         }
       // 로그인 실패 - 수정
       } catch (Exception) { // Unhandled Exception: Null check operator used on a null value

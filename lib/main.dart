@@ -33,11 +33,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-
-
-
       routes: {
-        "/": (context) => HomeScreen(database),
+        // user_key가 바뀌면 자동으로
+        "/": (context) => (user_key != 0) ? HomeScreen(database) : LoginPage(database),
+        "/home": (context) => HomeScreen(database),
         "/sign": (context) => SignPage(database),
         "/SpecificDiary": (context) => SpecificDiary(database),
         "/add": (context) => AddVoca(database),
@@ -46,18 +45,7 @@ class MyApp extends StatelessWidget {
         "/revisePost": (context) => RevisePost(database),
         "/login": (context) => LoginPage(database),
       },
-      onGenerateRoute: (RouteSettings settings){//userkey에 따라 화면 바뀌는 것.
-        assert(settings.name?.indexOf("/") == 0,
-        "[ROUTER] routing MUST begin with '/'");
-
-        if(user_key == 0){
-          return MaterialPageRoute(builder: (context) => LoginPage(database));
-        }
-        else{
-          return MaterialPageRoute(builder: (context) => HomeScreen(database));
-        }
-      },
-    initialRoute: "/login",);
+    );
   }
 
   Future<Database> initDatabase() async {
@@ -115,6 +103,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context)?.settings.arguments;
+    MyApp.user_key = (arguments as List)[0]!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("나의 일기"),
