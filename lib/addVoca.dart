@@ -30,7 +30,7 @@ class _AddVoca extends State<AddVoca> {
     return Scaffold(
       appBar: AppBar(
         title: Text('VOCA 추가', style: TextStyle(color: Colors.black)),
-        backgroundColor: const Color(0xffffef6f),
+        backgroundColor: Colors.amber,
       ),
       body: Container(
         child: Center(

@@ -29,7 +29,7 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
     return Scaffold(
       appBar: AppBar(
         title: Text('단어장', style: TextStyle(color: Colors.black)),
-        backgroundColor: const Color(0xffffef6f),
+        backgroundColor: Colors.amber,
       ),
       body: Container(
         child: FutureBuilder(
@@ -42,10 +42,11 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
               case ConnectionState.active:
                 return CircularProgressIndicator();
               case ConnectionState.done:
-                if((snapshot.data as List).isNotEmpty&& (snapshot.data as List).contains(MyApp.user_key)){
+                if((snapshot.data as List).isNotEmpty){
                   return ListView.builder(
                     itemBuilder: (context,index){
                       Voca voca = (snapshot.data as List<Voca>)[index];
+                      if(voca.user_key==MyApp.user_key) {
                         return ListTile(
                           title:Text(
                             voca.eng!,
@@ -90,6 +91,9 @@ class _VocaList extends State<VocaList>{ // 전체적으로 데이터 리스트�
                             _deleteVoca(result);
                           },
                         );
+                      }else{
+                        return Padding(padding: EdgeInsets.all(0));
+                      }
                     },
                     itemCount: (snapshot.data as List<Voca>).length,
                   );
