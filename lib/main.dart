@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       routes: {
         // user_key가 바뀌면 자동으로
         "/": (context) => (user_key != 0) ? HomeScreen(database) : LoginPage(database),
-        "/home": (context) => HomeScreen(database),
+        // "/home": (context) => HomeScreen(database),
         "/sign": (context) => SignPage(database),
         "/SpecificDiary": (context) => SpecificDiary(database),
         "/add": (context) => AddVoca(database),

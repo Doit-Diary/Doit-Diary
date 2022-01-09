@@ -6,7 +6,7 @@ import 'package:flutter/src/widgets/form.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:async';
 
-import 'main_loginsign.dart';
+import 'main.dart';
 import 'data/user.dart';
 
 
@@ -56,7 +56,7 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
           setState(() {
             MyApp.user_key = int.parse(res[0]["key"].toString());
           });
-          Navigator.pushReplacementNamed(context, '/home', arguments: [int.parse(res[0]["key"].toString())]);
+          Navigator.pushReplacementNamed(context, '/', arguments: [int.parse(res[0]["key"].toString())]);
           print(MyApp.user_key);
         }
       // 로그인 실패 - 수정
