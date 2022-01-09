@@ -2,7 +2,6 @@ import 'dart:convert'; // json 및 utf8
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart'; //db
-import 'package:shared_preferences/shared_preferences.dart'; // 자동로그인
 import 'package:flutter/src/widgets/form.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:async';
@@ -33,9 +32,6 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
     _pwTextController = TextEditingController();
   }
 
-  Future<SharedPreferences> _pref = SharedPreferences.getInstance();
-  final _formKey = new GlobalKey<FormState>();
-
   login() async {
     String uid = _idTextController!.text;
     String passwd = _pwTextController!.text;
@@ -53,13 +49,16 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
           "id = '$uid' AND "
           "pw = '$cryptoPw'");
 
+      // 로그인 성공
       try {
         if (res[0] != null) {
           MyApp.user_key = res[0]["key"];
+          Navigator.of(context).pop();
           Navigator.pushNamed(context, "/main"); // 지수님 화면으로 이동
+          //Navigator.of(context).pop(MyApp.user_key);
         }
-      } catch (Exception) {
-        // Unhandled Exception: Null check operator used on a null value
+      // 로그인 실패 - 수정
+      } catch (Exception) { // Unhandled Exception: Null check operator used on a null value
         makeDialog("아이디 혹은 비밀번호가 맞지 않습니다");
       }
 
@@ -70,33 +69,8 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
       //
       // }
 
-
-      // db.getLoginUser(uid, passwd).then((userData) {
-      //   if (userData != null) {
-      //     setSP(userData).whenComplete(() {
-      //       //Navigator.pushAndRemoveUntil( // 메인페이지로 이동
-      //        //   context,
-      //          // MaterialPageRoute(builder: (_) => ),
-      //            //   (Route<dynamic> route) => false);
-      //     });
-      //   } else {
-      //     makeDialog("Error: 사용자가 존재하지 않습니다");
-      //   }
-      // }).catchError((error) {
-      //   print(error);
-      //   makeDialog("Error: 로그인 실패");
-      // });
     }
   }
-
-
-  Future setSP(User user) async {
-    final SharedPreferences sp = await _pref;
-
-    sp.setString("user_id", user.id!);
-    sp.setString("password", user.pw!);
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +125,7 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                   child: Text('회원가입',
                     style: TextStyle(color: Colors.black),),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.yellow,
+                    primary: const Color(0xffffef6f),
                     minimumSize: Size(100.0, 40.0),
                   )),
             ],
