@@ -8,6 +8,7 @@ import 'specificDiary.dart';
 import 'signPage.dart';
 import 'package:doit_diary/vocaList.dart';
 import 'revisePost.dart';
+import 'login.dart';
 
 //import 'Widget/DiaryForm.dart';
 import 'Widget/DiaryCard.dart';
@@ -20,8 +21,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   static int user_key = 0;
-  // 이 user_key가 0일 때는 정윤님 로그인 페이지로 보내시고
-  // user_key가 0이 아닐 때는 그냥 메인 화면 보여주시면 될 거 같아요
 
   // This widget is the root of your application.
   @override
@@ -34,7 +33,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      initialRoute: "/",
+
+
+
       routes: {
         "/": (context) => HomeScreen(database),
         "/sign": (context) => SignPage(database),
@@ -43,8 +44,20 @@ class MyApp extends StatelessWidget {
         "/vocaList": (context) => VocaList(database),
         "/writePost": (context) => WritePost(database),
         "/revisePost": (context) => RevisePost(database),
+        "/login": (context) => LoginPage(database),
       },
-    );
+      onGenerateRoute: (RouteSettings settings){//userkey에 따라 화면 바뀌는 것.
+        assert(settings.name?.indexOf("/") == 0,
+        "[ROUTER] routing MUST begin with '/'");
+
+        if(user_key == 0){
+          return MaterialPageRoute(builder: (context) => LoginPage(database));
+        }
+        else{
+          return MaterialPageRoute(builder: (context) => HomeScreen(database));
+        }
+      },
+    initialRoute: "/login",);
   }
 
   Future<Database> initDatabase() async {
@@ -181,6 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }),
     );
   }
+
 }
 
 

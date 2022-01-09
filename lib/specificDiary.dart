@@ -12,7 +12,7 @@ class SpecificDiary extends StatefulWidget{
   @override
   State<StatefulWidget> createState() => _SpecificDiaryState(db);
 }
-
+Future<List<Diary>>? diaries;
 class _SpecificDiaryState extends State<SpecificDiary>{
   final Future<Database> db;
   _SpecificDiaryState(this.db);
@@ -76,6 +76,10 @@ class _SpecificDiaryState extends State<SpecificDiary>{
                 value: 'DeleteButton',
                 child: ListTile(
                   title: Text('삭제하기'),
+                  onTap: ()async{
+                    //_deleteDiary(diaries);
+                    Navigator.of(context).pop();
+                  },
                 )
             )
           ];
@@ -102,5 +106,12 @@ class _SpecificDiaryState extends State<SpecificDiary>{
       ),
     ),
   );
+  }
+  void _deleteDiary(Diary diary) async {
+    final Database database = await widget.db;
+    await database.delete('Diary', where: 'key=?', whereArgs: [diary.key]);
+    setState(() {
+      //diaries = refreshDiary();
+    });
   }
 }
