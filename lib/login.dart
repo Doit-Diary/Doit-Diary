@@ -6,7 +6,7 @@ import 'package:flutter/src/widgets/form.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:async';
 
-import 'main_loginsign.dart';
+import 'main.dart';
 import 'data/user.dart';
 
 

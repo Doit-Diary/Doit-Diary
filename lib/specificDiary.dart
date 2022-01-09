@@ -12,9 +12,10 @@ class SpecificDiary extends StatefulWidget{
   @override
   State<StatefulWidget> createState() => _SpecificDiaryState(db);
 }
-Future<List<Diary>>? diaries;
+
 class _SpecificDiaryState extends State<SpecificDiary>{
   final Future<Database> db;
+  Future<List<Diary>>? diaries;
   _SpecificDiaryState(this.db);
 
   bool isLoading = false;
@@ -55,7 +56,9 @@ class _SpecificDiaryState extends State<SpecificDiary>{
         title: Text("나의 일기"),//앱바
         actions: [
           PopupMenuButton(itemBuilder: (context){
+
             return <PopupMenuEntry<String>>[
+
               PopupMenuItem(
                 value: 'ReviseButton',
                 child: ListTile(
@@ -73,12 +76,20 @@ class _SpecificDiaryState extends State<SpecificDiary>{
 
             ),
             PopupMenuItem(
+
                 value: 'DeleteButton',
                 child: ListTile(
+
                   title: Text('삭제하기'),
                   onTap: ()async{
-                    //_deleteDiary(diaries);
+                    final Database database = await widget.db;
+                    await database.delete('Diary', where: 'key=?', whereArgs: [widget.key]);
+                    setState(() {
+                      diaries = refreshDiary() as Future<List<Diary>>?;
+                    });
+
                     Navigator.of(context).pop();
+
                   },
                 )
             )
@@ -107,11 +118,6 @@ class _SpecificDiaryState extends State<SpecificDiary>{
     ),
   );
   }
-  void _deleteDiary(Diary diary) async {
-    final Database database = await widget.db;
-    await database.delete('Diary', where: 'key=?', whereArgs: [diary.key]);
-    setState(() {
-      //diaries = refreshDiary();
-    });
-  }
+  
+
 }
